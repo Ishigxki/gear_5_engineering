@@ -27,11 +27,19 @@ def get_tasks():
 def get_tasks_by_id(id:int):
     cursor.execute("SELECT * FROM tasks WHERE id=%s;",(id,))
     rows= cursor.fetchone()
-    return {"tasks": rows}
+    if rows is None:
+        return {"error": "Task not found"}
+
+    return {"tasks": {"id":rows[0],"title":rows[1]}}
 
 @app.put("/tasks/{id}")
-def update_task(id:int):
-    cursor.execute("UPDATE tasks SET * WHERE id=%s;",(id,))
+def update_task(id: int, task: Task):
+    cursor.execute(
+        "UPDATE tasks SET title = %s WHERE id = %s;",
+        (task.title, id)
+    )
+    connection.commit()
+    return {"message": "Task updated"}
     
 
 @app.post("/tasks")
@@ -50,4 +58,7 @@ def delete_task(id: int):
         (id,)
     )
     connection.commit()
+
+    if cursor.rowcount ==0:
+        return {"error":"Task not found"}
     return {"message": "Task deleted"}

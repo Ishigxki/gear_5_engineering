@@ -1,4 +1,5 @@
 import psycopg2
+import os
 
 connection =psycopg2.connect(
     host ="localhost",
